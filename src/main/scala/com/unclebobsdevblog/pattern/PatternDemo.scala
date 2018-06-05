@@ -13,8 +13,9 @@ object PatternDemo extends JFXApp {
     width = 800
     height = 800
     scene = new Scene {
-      val pattern = Patterns("BFABE9711834AEEB96E5B6B3350FC8EB8B1D9D91")
-      pattern.draw()
+      val pattern = Patterns("0FABE9711834AEEB96E5B6B3350FC8EB8B1D9D91")
+      pattern.width <== width
+      pattern.height <== height
       content = pattern
     }
   }

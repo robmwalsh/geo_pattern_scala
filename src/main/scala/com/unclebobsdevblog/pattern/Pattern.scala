@@ -60,6 +60,9 @@ object Patterns extends Canvas {
       drawBackground()
       drawPattern()
     }
+    //only need to draw when the canvas is getting bigger
+    width.onChange((_, oldVal, newVal) => if (newVal.intValue > oldVal.intValue) draw())
+    height.onChange((_, oldVal, newVal) => if (newVal.intValue > oldVal.intValue) draw())
   }
 
   def apply(hash: String = "f3da29ce23e96dc8b38df6ab3b6aaf7995cc581a",
@@ -73,9 +76,6 @@ object Patterns extends Canvas {
     val sideLength = rescale(scale, (0, 15), (8, 60))
     val hexHeight = sideLength * Math.sqrt(3)
     val hexWidth = sideLength * 2
-
-    width = hexWidth * 3 + sideLength * 3
-    height = hexHeight * 6
 
     val c: Double = sideLength
     val a: Double = c / 2
@@ -93,22 +93,21 @@ object Patterns extends Canvas {
 
     def drawPattern() = {
       graphicsContext2D.setStroke(STROKE_COLOR.opacity(STROKE_OPACITY))
-
-      for (y <- 0 to 7) {
-        for (x <- 0 to 7) {
+      val xMax = (width / (hexWidth + sideLength) * 2).intValue() + 1
+      val yMax = (height / hexHeight).intValue() + 1
+      for (y <- 0 to yMax) {
+        for (x <- 0 to xMax) {
           val index = (y * 6 + x % 6) % 36 + 1
           val value = hexVal(index)
           graphicsContext2D.setFill(fillColor(value).opacity(fillOpacity(value)))
-
           val dy = if (x % 2 == 0) (y - 0.5) * hexHeight else (y - 0.5) * hexHeight + hexHeight / 2
           val dx = x * sideLength * 1.5 - hexWidth / 2
           val hex = hexTemplate.map(point => (point._1 + dx, point._2 + dy))
           graphicsContext2D.fillPolygon(hex)
           graphicsContext2D.strokePolygon(hex)
-          //graphicsContext2D.setFill(Color.Black)
-          //graphicsContext2D.fillText(index.toString, dx + c, dy + c)
         }
       }
     }
   }
+
 }
