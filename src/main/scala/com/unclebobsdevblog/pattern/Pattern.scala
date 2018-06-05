@@ -105,7 +105,7 @@ object Patterns extends Canvas {
           val hex = hexTemplate.map(point => (point._1 + dx, point._2 + dy))
           graphicsContext2D.fillPolygon(hex)
           graphicsContext2D.strokePolygon(hex)
-          graphicsContext2D.setFill(Color.Black)
+          //graphicsContext2D.setFill(Color.Black)
           //graphicsContext2D.fillText(index.toString, dx + c, dy + c)
         }
       }
