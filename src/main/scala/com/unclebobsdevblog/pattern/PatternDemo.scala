@@ -10,8 +10,8 @@ import scalafx.scene.paint.Color
 object PatternDemo extends JFXApp {
   stage = new application.JFXApp.PrimaryStage {
     title.value = "com.unclebobsdevblog.pattern.PatternDemo"
-    width = 800
-    height = 800
+    width = 400
+    height = 400
     scene = new Scene {
       val pattern = Patterns("0FABE9711834AEEB96E5B6B3350FC8EB8B1D9D91")
       pattern.width <== width

@@ -60,6 +60,7 @@ object Patterns extends Canvas {
       drawBackground()
       drawPattern()
     }
+
     //only need to draw when the canvas is getting bigger
     width.onChange((_, oldVal, newVal) => if (newVal.intValue > oldVal.intValue) draw())
     height.onChange((_, oldVal, newVal) => if (newVal.intValue > oldVal.intValue) draw())
@@ -67,7 +68,7 @@ object Patterns extends Canvas {
 
   def apply(hash: String = "f3da29ce23e96dc8b38df6ab3b6aaf7995cc581a",
             baseColor: Color = Color.web("#933c3c")): Pattern = {
-    new Hexagons(hash, baseColor)
+    new Chevrons(hash, baseColor)
 
   }
 
@@ -105,6 +106,39 @@ object Patterns extends Canvas {
           val hex = hexTemplate.map(point => (point._1 + dx, point._2 + dy))
           graphicsContext2D.fillPolygon(hex)
           graphicsContext2D.strokePolygon(hex)
+        }
+      }
+    }
+  }
+
+  private class Chevrons(val hash: String, val baseColor: Color) extends Pattern {
+    val chevronWidth = rescale(hexVal(0), (0, 15), (30, 80))
+    val chevronHeight = chevronWidth
+    val e = chevronHeight * 0.66
+    val chevronTemplate = Seq(
+      (chevronWidth / 2d, chevronHeight - e),
+      (chevronWidth, 0d),
+      (chevronWidth, e),
+      (chevronWidth / 2d, chevronHeight),
+      (0d, e),
+      (0d, 0d),
+      (chevronWidth / 2d, chevronHeight - e)
+    )
+
+    def drawPattern() = {
+      graphicsContext2D.setStroke(STROKE_COLOR.opacity(STROKE_OPACITY))
+      val xMax = (width / chevronWidth).intValue() + 1
+      val yMax = (height / e).intValue() + 1
+      for (y <- 0 to yMax) {
+        for (x <- 0 to xMax) {
+          val index = (y * 6 + x % 6) % 36 + 1
+          val value = hexVal(index)
+          graphicsContext2D.setFill(fillColor(value).opacity(fillOpacity(value)))
+          val dy = (y - 0.5) * e
+          val dx = x * chevronWidth
+          val chevron = chevronTemplate.map(point => (point._1 + dx, point._2 + dy))
+          graphicsContext2D.fillPolygon(chevron)
+          graphicsContext2D.strokePolygon((chevronWidth /2+ dx, chevronHeight +dy) +: chevron)
         }
       }
     }

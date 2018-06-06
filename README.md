@@ -3,7 +3,7 @@ This is a scala port of [btmills/geopattern](https://github.com/btmills/geopatte
 
 # Differences
 - Using scalaFx canvas instead of svg
-- Only does hexagons at the moment :)
+- Only does hexagons & chevrons at the moment :)
 
 # Why?
 I just started learning Scala (basically just binge read [Programming in Scala](https://booksites.artima.com/programming_in_scala_3ed)) and wanted something to practice on.
