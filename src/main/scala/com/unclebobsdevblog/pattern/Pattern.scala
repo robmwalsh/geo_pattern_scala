@@ -68,7 +68,7 @@ object Patterns extends Canvas {
 
   def apply(hash: String = "f3da29ce23e96dc8b38df6ab3b6aaf7995cc581a",
             baseColor: Color = Color.web("#933c3c")): Pattern = {
-    new Chevrons(hash, baseColor)
+    new PlusSigns(hash, baseColor)
 
   }
 
@@ -82,14 +82,14 @@ object Patterns extends Canvas {
     val a: Double = c / 2
     val b: Double = Math.sin(60 * Math.PI / 180) * c
 
-    val hexTemplate = Seq(
-      (0d, b),
-      (a, 0d),
-      (a + c, 0d),
+    val hexTemplate: Seq[(Double, Double)] = Seq(
+      (0, b),
+      (a, 0),
+      (a + c, 0),
       (2 * c, b),
       (a + c, 2 * b),
       (a, 2 * b),
-      (0d, b)
+      (0, b)
     )
 
     def drawPattern() = {
@@ -115,14 +115,14 @@ object Patterns extends Canvas {
     val chevronWidth = rescale(hexVal(0), (0, 15), (30, 80))
     val chevronHeight = chevronWidth
     val e = chevronHeight * 0.66
-    val chevronTemplate = Seq(
-      (chevronWidth / 2d, chevronHeight - e),
-      (chevronWidth, 0d),
+    val chevronTemplate: Seq[(Double, Double)] = Seq(
+      (chevronWidth / 2, chevronHeight - e),
+      (chevronWidth, 0),
       (chevronWidth, e),
-      (chevronWidth / 2d, chevronHeight),
-      (0d, e),
-      (0d, 0d),
-      (chevronWidth / 2d, chevronHeight - e)
+      (chevronWidth / 2, chevronHeight),
+      (0, e),
+      (0, 0),
+      (chevronWidth / 2, chevronHeight - e)
     )
 
     def drawPattern() = {
@@ -138,7 +138,45 @@ object Patterns extends Canvas {
           val dx = x * chevronWidth
           val chevron = chevronTemplate.map(point => (point._1 + dx, point._2 + dy))
           graphicsContext2D.fillPolygon(chevron)
-          graphicsContext2D.strokePolygon((chevronWidth /2+ dx, chevronHeight +dy) +: chevron)
+          graphicsContext2D.strokePolygon((chevronWidth / 2 + dx, chevronHeight + dy) +: chevron)
+        }
+      }
+    }
+  }
+
+  private class PlusSigns(val hash: String, val baseColor: Color) extends Pattern {
+    val squareSize = rescale(hexVal(0), (0, 15), (10, 25))
+    val plusSize = squareSize * 3
+    val plusTemplate: Seq[(Double, Double)] = Seq(
+      (1 * squareSize, 0),
+      (2 * squareSize, 0),
+      (2 * squareSize, 1 * squareSize),
+      (3 * squareSize, 1 * squareSize),
+      (3 * squareSize, 2 * squareSize),
+      (2 * squareSize, 2 * squareSize),
+      (2 * squareSize, 3 * squareSize),
+      (1 * squareSize, 3 * squareSize),
+      (1 * squareSize, 2 * squareSize),
+      (0 * squareSize, 2 * squareSize),
+      (0 * squareSize, 1 * squareSize),
+      (1 * squareSize, 1 * squareSize),
+      (1 * squareSize, 0 * squareSize),
+    )
+
+    def drawPattern() = {
+      graphicsContext2D.setStroke(STROKE_COLOR.opacity(STROKE_OPACITY))
+      val xMax = (width / squareSize * 2).intValue() + 1
+      val yMax = (height / squareSize * 2).intValue() + 1
+      for (y <- 0 to yMax) {
+        for (x <- 0 to xMax) {
+          val index = (y * 6 + x % 6) % 36 + 1
+          val value = hexVal(index)
+          graphicsContext2D.setFill(fillColor(value).opacity(fillOpacity(value)))
+          val dy = y * plusSize - y * squareSize - plusSize / 2
+          val dx = x * plusSize - x * squareSize + (if (y % 2 == 0) 0 else squareSize) - squareSize
+          val plus = plusTemplate.map(point => (point._1 + dx, point._2 + dy))
+          graphicsContext2D.fillPolygon(plus)
+          graphicsContext2D.strokePolygon(plus)
         }
       }
     }
