@@ -33,12 +33,12 @@ object Patterns extends Canvas {
 
     val backgroudColor = Color.hsb(
       //hue
-      (((baseColor.hue * 360 - hueOffset) + 360) % 360) / 360,
+      ((baseColor.hue * 360 - hueOffset) % 360) ,
       //saturation
       if (satOffset % 2 == 0)
         Math.min(1, ((baseColor.saturation * 100) + satOffset) / 100)
       else
-        Math.max(1, ((baseColor.saturation * 100) - satOffset) / 100)
+        Math.max(0, ((baseColor.saturation * 100) - satOffset) / 100)
       //brightness
       , baseColor.brightness)
 

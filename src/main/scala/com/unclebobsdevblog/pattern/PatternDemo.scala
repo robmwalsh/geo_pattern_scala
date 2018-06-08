@@ -1,5 +1,9 @@
 package com.unclebobsdevblog.pattern
 
+import java.nio.ByteBuffer
+import java.security.MessageDigest
+
+import org.apache.commons.codec.digest.DigestUtils
 import scalafx.application
 import scalafx.application.JFXApp
 import scalafx.scene.Scene
@@ -13,7 +17,9 @@ object PatternDemo extends JFXApp {
     width = 400
     height = 400
     scene = new Scene {
-      val pattern = Patterns("0FABE9711834AEEB96E5B6B3350FC8EB8B1D9D91")
+      val md = MessageDigest.getInstance("SHA-1")
+      val hash = DigestUtils.sha1Hex(System.currentTimeMillis().toString)
+      val pattern = Patterns(hash)
       pattern.width <== width
       pattern.height <== height
       content = pattern
