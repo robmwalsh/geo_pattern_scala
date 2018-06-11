@@ -33,7 +33,7 @@ object Patterns extends Canvas {
 
     val backgroudColor = Color.hsb(
       //hue
-      ((baseColor.hue * 360 - hueOffset) % 360) ,
+      ((baseColor.hue * 360 - hueOffset) % 360),
       //saturation
       if (satOffset % 2 == 0)
         Math.min(1, ((baseColor.saturation * 100) + satOffset) / 100)
@@ -54,7 +54,31 @@ object Patterns extends Canvas {
       graphicsContext2D.fillRect(0d, 0d, width.doubleValue, height.doubleValue)
     }
 
-    def drawPattern(): Unit
+    val template: Seq[(Double, Double)]
+
+    def xMax: Int
+
+    def yMax: Int
+
+    val fill = true
+    val stroke = true
+
+    def translate(x: Double, y: Double): (Double, Double)
+
+    def drawPattern(): Unit = {
+      graphicsContext2D.setStroke(STROKE_COLOR.opacity(STROKE_OPACITY))
+      for (y <- 0 to yMax) {
+        for (x <- 0 to xMax) {
+          val index = (y * 6 + x % 6) % 36 + 1
+          val value = hexVal(index)
+          graphicsContext2D.setFill(fillColor(value).opacity(fillOpacity(value)))
+          val translation = translate(x, y)
+          val shape = template.map(point => (point._1 + translation._1, point._2 + translation._2))
+          if (fill) graphicsContext2D.fillPolygon(shape)
+          if (stroke) graphicsContext2D.strokePolygon(shape)
+        }
+      }
+    }
 
     final def draw(): Unit = {
       drawBackground()
@@ -82,7 +106,15 @@ object Patterns extends Canvas {
     val a: Double = c / 2
     val b: Double = Math.sin(60 * Math.PI / 180) * c
 
-    val hexTemplate: Seq[(Double, Double)] = Seq(
+    override def xMax: Int = (width / (hexWidth + sideLength) * 2).intValue() + 1
+
+    override def yMax: Int = (height / hexHeight).intValue() + 1
+
+    override def translate(x: Double, y: Double): (Double, Double) =
+      (x * sideLength * 1.5 - hexWidth / 2,
+        if (x % 2 == 0) (y - 0.5) * hexHeight else (y - 0.5) * hexHeight + hexHeight / 2)
+
+    val template: Seq[(Double, Double)] = Seq(
       (0, b),
       (a, 0),
       (a + c, 0),
@@ -91,31 +123,13 @@ object Patterns extends Canvas {
       (a, 2 * b),
       (0, b)
     )
-
-    def drawPattern() = {
-      graphicsContext2D.setStroke(STROKE_COLOR.opacity(STROKE_OPACITY))
-      val xMax = (width / (hexWidth + sideLength) * 2).intValue() + 1
-      val yMax = (height / hexHeight).intValue() + 1
-      for (y <- 0 to yMax) {
-        for (x <- 0 to xMax) {
-          val index = (y * 6 + x % 6) % 36 + 1
-          val value = hexVal(index)
-          graphicsContext2D.setFill(fillColor(value).opacity(fillOpacity(value)))
-          val dy = if (x % 2 == 0) (y - 0.5) * hexHeight else (y - 0.5) * hexHeight + hexHeight / 2
-          val dx = x * sideLength * 1.5 - hexWidth / 2
-          val hex = hexTemplate.map(point => (point._1 + dx, point._2 + dy))
-          graphicsContext2D.fillPolygon(hex)
-          graphicsContext2D.strokePolygon(hex)
-        }
-      }
-    }
   }
 
   private class Chevrons(val hash: String, val baseColor: Color) extends Pattern {
     val chevronWidth = rescale(hexVal(0), (0, 15), (30, 80))
     val chevronHeight = chevronWidth
     val e = chevronHeight * 0.66
-    val chevronTemplate: Seq[(Double, Double)] = Seq(
+    val template: Seq[(Double, Double)] = Seq(
       (chevronWidth / 2, chevronHeight - e),
       (chevronWidth, 0),
       (chevronWidth, e),
@@ -125,29 +139,20 @@ object Patterns extends Canvas {
       (chevronWidth / 2, chevronHeight - e)
     )
 
-    def drawPattern() = {
-      graphicsContext2D.setStroke(STROKE_COLOR.opacity(STROKE_OPACITY))
-      val xMax = (width / chevronWidth).intValue() + 1
-      val yMax = (height / e).intValue() + 1
-      for (y <- 0 to yMax) {
-        for (x <- 0 to xMax) {
-          val index = (y * 6 + x % 6) % 36 + 1
-          val value = hexVal(index)
-          graphicsContext2D.setFill(fillColor(value).opacity(fillOpacity(value)))
-          val dy = (y - 0.5) * e
-          val dx = x * chevronWidth
-          val chevron = chevronTemplate.map(point => (point._1 + dx, point._2 + dy))
-          graphicsContext2D.fillPolygon(chevron)
-          graphicsContext2D.strokePolygon((chevronWidth / 2 + dx, chevronHeight + dy) +: chevron)
-        }
-      }
-    }
+    override def xMax = (width / chevronWidth).intValue() + 1
+
+    override def yMax = (height / e).intValue() + 1
+
+    override def translate(x: Double, y: Double): (Double, Double) =
+      (x * chevronWidth,
+        (y - 0.5) * e)
+
   }
 
   private class PlusSigns(val hash: String, val baseColor: Color) extends Pattern {
     val squareSize = rescale(hexVal(0), (0, 15), (10, 25))
     val plusSize = squareSize * 3
-    val plusTemplate: Seq[(Double, Double)] = Seq(
+    val template: Seq[(Double, Double)] = Seq(
       (1 * squareSize, 0),
       (2 * squareSize, 0),
       (2 * squareSize, 1 * squareSize),
@@ -163,23 +168,14 @@ object Patterns extends Canvas {
       (1 * squareSize, 0 * squareSize),
     )
 
-    def drawPattern() = {
-      graphicsContext2D.setStroke(STROKE_COLOR.opacity(STROKE_OPACITY))
-      val xMax = (width / squareSize * 2).intValue() + 1
-      val yMax = (height / squareSize * 2).intValue() + 1
-      for (y <- 0 to yMax) {
-        for (x <- 0 to xMax) {
-          val index = (y * 6 + x % 6) % 36 + 1
-          val value = hexVal(index)
-          graphicsContext2D.setFill(fillColor(value).opacity(fillOpacity(value)))
-          val dy = y * plusSize - y * squareSize - plusSize / 2
-          val dx = x * plusSize - x * squareSize + (if (y % 2 == 0) 0 else squareSize) - squareSize
-          val plus = plusTemplate.map(point => (point._1 + dx, point._2 + dy))
-          graphicsContext2D.fillPolygon(plus)
-          graphicsContext2D.strokePolygon(plus)
-        }
-      }
-    }
+    override def xMax = (width / squareSize * 2).intValue() + 1
+
+    override def yMax = (height / squareSize * 2).intValue() + 1
+
+    override def translate(x: Double, y: Double): (Double, Double) =
+      (x * plusSize - x * squareSize + (if (y % 2 == 0) 0 else squareSize) - squareSize,
+        y * plusSize - y * squareSize - plusSize / 2)
+
   }
 
 }
