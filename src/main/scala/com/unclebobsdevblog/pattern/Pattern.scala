@@ -92,7 +92,7 @@ object Patterns extends Canvas {
 
   def apply(hash: String = "f3da29ce23e96dc8b38df6ab3b6aaf7995cc581a",
             baseColor: Color = Color.web("#933c3c")): Pattern = {
-    new Diamonds(hash, baseColor)
+    new Squares(hash, baseColor)
 
   }
 
@@ -219,6 +219,27 @@ object Patterns extends Canvas {
     override def translate(x: Double, y: Double): (Double, Double) =
       (x * diamondWidth / 2 + (if (y % 2 == 0) 0 else diamondWidth / 2),
         (y - 1) * diamondHeight / 2)
+  }
+
+  private class Squares(val hash: String, val baseColor: Color) extends Pattern {
+
+    val squareSize = rescale(hexVal(0), (0, 15), (10, 60))
+
+    override val template: Seq[(Double, Double)] = Seq(
+      (0, 0),
+      (0, squareSize),
+      (squareSize, squareSize),
+      (squareSize, 0),
+      (0, 0)
+    )
+
+    override def xMax: Int = (width.intValue() / squareSize).intValue()
+
+    override def yMax: Int = (height.intValue() / squareSize).intValue()
+
+    override def translate(x: Double, y: Double): (Double, Double) =
+      (x * squareSize,
+        y * squareSize)
   }
 
 }

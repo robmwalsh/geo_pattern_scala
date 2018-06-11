@@ -13,7 +13,7 @@ This is a scala port of [btmills/geopattern](https://github.com/btmills/geopatte
     - ~~overlappingRings~~
     - ~~plaid~~
     - ~~triangles~~
-    - ~~squares~~
+    - squares
     - ~~concentricCircles~~
     - diamonds
     - ~~tessellation~~
