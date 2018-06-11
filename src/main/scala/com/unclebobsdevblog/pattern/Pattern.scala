@@ -92,7 +92,7 @@ object Patterns extends Canvas {
 
   def apply(hash: String = "f3da29ce23e96dc8b38df6ab3b6aaf7995cc581a",
             baseColor: Color = Color.web("#933c3c")): Pattern = {
-    new PlusSigns(hash, baseColor)
+    new Octagons(hash, baseColor)
 
   }
 
@@ -176,6 +176,29 @@ object Patterns extends Canvas {
       (x * plusSize - x * squareSize + (if (y % 2 == 0) 0 else squareSize) - squareSize,
         y * plusSize - y * squareSize - plusSize / 2)
 
+  }
+
+  private class Octagons(val hash: String, val baseColor: Color) extends Pattern {
+    val squareSize = rescale(hexVal(0), (0, 15), (10, 60))
+    val s = squareSize
+    val c = s * 0.33
+    override val template: Seq[(Double, Double)] = Seq(
+      (c, 0),
+      (s - c, 0),
+      (s, c),
+      (s, s - c),
+      (s - c, s),
+      (c, s),
+      (0, s - c),
+      (0, c),
+      (c, 0)
+    )
+
+    override def xMax: Int = (width.intValue() / squareSize).intValue()
+
+    override def yMax: Int = (height.intValue() / squareSize).intValue()
+
+    override def translate(x: Double, y: Double): (Double, Double) = (x * squareSize, y * squareSize)
   }
 
 }
