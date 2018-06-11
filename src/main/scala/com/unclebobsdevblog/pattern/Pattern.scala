@@ -92,7 +92,7 @@ object Patterns extends Canvas {
 
   def apply(hash: String = "f3da29ce23e96dc8b38df6ab3b6aaf7995cc581a",
             baseColor: Color = Color.web("#933c3c")): Pattern = {
-    new Octagons(hash, baseColor)
+    new Diamonds(hash, baseColor)
 
   }
 
@@ -199,6 +199,26 @@ object Patterns extends Canvas {
     override def yMax: Int = (height.intValue() / squareSize).intValue()
 
     override def translate(x: Double, y: Double): (Double, Double) = (x * squareSize, y * squareSize)
+  }
+
+  private class Diamonds(val hash: String, val baseColor: Color) extends Pattern {
+    val diamondWidth = rescale(hexVal(0), (0, 15), (10, 50))
+    val diamondHeight = rescale(hexVal(1), (0, 15), (10, 50))
+    override val template: Seq[(Double, Double)] = Seq(
+      (diamondWidth / 2, 0),
+      (diamondWidth, diamondHeight / 2),
+      (diamondWidth / 2, diamondHeight),
+      (0, diamondHeight / 2),
+      (diamondWidth / 2, 0)
+    )
+
+    override def xMax: Int = (width.intValue() / diamondWidth * 2).intValue()
+
+    override def yMax: Int = (height.intValue() / diamondHeight * 2).intValue()
+
+    override def translate(x: Double, y: Double): (Double, Double) =
+      (x * diamondWidth / 2 + (if (y % 2 == 0) 0 else diamondWidth / 2),
+        (y - 1) * diamondHeight / 2)
   }
 
 }
