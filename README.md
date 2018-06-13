@@ -14,7 +14,7 @@ This is a scala port of [btmills/geopattern](https://github.com/btmills/geopatte
     - ~~plaid~~
     - ~~triangles~~
     - squares
-    - ~~concentricCircles~~
+    - concentricCircles
     - diamonds
     - ~~tessellation~~
     - ~~nestedSquares~~

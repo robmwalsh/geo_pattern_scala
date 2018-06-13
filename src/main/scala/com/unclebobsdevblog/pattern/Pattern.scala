@@ -95,7 +95,7 @@ object Patterns extends Canvas {
 
   def apply(hash: String,
             baseColor: Color = Color.web("#933c3c")): Pattern = {
-    new OverlappingRings(hash, baseColor)
+    new ConcentricCircles(hash, baseColor)
 
   }
 
@@ -288,6 +288,37 @@ object Patterns extends Canvas {
           graphicsContext2D.setStroke(fillColor(value).opacity(fillOpacity(value)))
           if (stroke) graphicsContext2D.strokeOval((x - 0.5) * ringSize, (y - 0.5) * ringSize,
             ringSize * 2 - strokeWidth, ringSize * 2 - strokeWidth)
+        }
+      }
+    }
+  }
+
+  private class ConcentricCircles(val hash: String, val baseColor: Color) extends Pattern {
+    var scale = hexVal(0)
+    var ringSize = rescale(scale, (0, 15), (10, 60))
+    var strokeWidth = ringSize / 5
+
+    override def xMax: Int = (width.intValue() / ringSize).intValue() + 1
+
+    override def yMax: Int = (height.intValue() / ringSize).intValue() + 1
+
+    override val fill: Boolean = false
+
+    override def drawPattern(): Unit = {
+      graphicsContext2D.lineWidth = strokeWidth
+      for (y <- 0 to yMax) {
+        for (x <- 0 to xMax) {
+          val index = (y * 6 + x % 6) % 36 + 1
+          val value = (hexVal(index), hexVal(39 - index))
+
+          graphicsContext2D.setStroke(fillColor(value._1).opacity(fillOpacity(value._2)))
+          graphicsContext2D.strokeOval((x - 0.5) * (ringSize + strokeWidth), (y - 0.5) * (ringSize + strokeWidth),
+            ringSize, ringSize)
+
+          graphicsContext2D.setFill(fillColor(value._2).opacity(fillOpacity(value._2)))
+          graphicsContext2D.fillOval((x - 0.5) * (ringSize + strokeWidth) + strokeWidth, (y - 0.5) * (ringSize + strokeWidth) + strokeWidth,
+            (ringSize + strokeWidth) / 2, (ringSize + strokeWidth) / 2)
+
         }
       }
     }
