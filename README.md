@@ -5,7 +5,7 @@ This is a scala port of [btmills/geopattern](https://github.com/btmills/geopatte
 - Using scalaFx canvas instead of svg
 - Only does the following shapes at the moment :)
     - octagons
-    - ~~overlappingCircles~~
+    - overlappingCircles
     - plusSigns
     - ~~xes~~
     - ~~sineWaves~~

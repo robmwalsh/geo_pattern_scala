@@ -25,12 +25,6 @@ object Patterns extends Canvas {
   trait BasicPattern extends Pattern {
     val template: Seq[(Double, Double)]
 
-    def xMax: Int
-    def yMax: Int
-
-    val fill = true
-    val stroke = true
-
     def translate(x: Double, y: Double): (Double, Double)
 
     def drawPattern(): Unit = {
@@ -53,6 +47,13 @@ object Patterns extends Canvas {
     //TODO check the string is actually a hash
     val hash: String
     val baseColor: Color
+
+    def xMax: Int
+
+    def yMax: Int
+
+    val fill = true
+    val stroke = true
 
     private val hueOffset = rescale(hexVal(14, 3), (0, 4095), (0, 359))
     private val satOffset = hexVal(17)
@@ -92,9 +93,9 @@ object Patterns extends Canvas {
     height.onChange((_, oldVal, newVal) => if (newVal.intValue > oldVal.intValue) draw())
   }
 
-  def apply(hash: String = "f3da29ce23e96dc8b38df6ab3b6aaf7995cc581a",
+  def apply(hash: String,
             baseColor: Color = Color.web("#933c3c")): Pattern = {
-    new Chevrons(hash, baseColor)
+    new OverlappingCircles(hash, baseColor)
 
   }
 
@@ -242,6 +243,28 @@ object Patterns extends Canvas {
     override def translate(x: Double, y: Double): (Double, Double) =
       (x * squareSize,
         y * squareSize)
+  }
+
+  private class OverlappingCircles(val hash: String, val baseColor: Color) extends Pattern {
+    var scale = hexVal(0)
+    var diameter = rescale(scale, (0, 15), (25, 200))
+    var radius = diameter / 2
+
+    override def xMax: Int = (width.intValue() / radius).intValue() + 1
+    override def yMax: Int = (height.intValue() / radius).intValue() + 1
+
+    override def drawPattern(): Unit = {
+      graphicsContext2D.setStroke(STROKE_COLOR.opacity(STROKE_OPACITY))
+      for (y <- 0 to yMax) {
+        for (x <- 0 to xMax) {
+          val index = (y * 6 + x % 6) % 36 + 1
+          val value = hexVal(index)
+          graphicsContext2D.setFill(fillColor(value).opacity(fillOpacity(value)))
+          if (fill) graphicsContext2D.fillOval((x - 1) * radius, (y - 1) * radius, diameter, diameter)
+          if (stroke) graphicsContext2D.strokeOval((x - 1) * radius, (y - 1) * radius, diameter, diameter)
+        }
+      }
+    }
   }
 
 }
