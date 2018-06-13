@@ -95,7 +95,7 @@ object Patterns extends Canvas {
 
   def apply(hash: String,
             baseColor: Color = Color.web("#933c3c")): Pattern = {
-    new OverlappingCircles(hash, baseColor)
+    new OverlappingRings(hash, baseColor)
 
   }
 
@@ -251,6 +251,7 @@ object Patterns extends Canvas {
     var radius = diameter / 2
 
     override def xMax: Int = (width.intValue() / radius).intValue() + 1
+
     override def yMax: Int = (height.intValue() / radius).intValue() + 1
 
     override def drawPattern(): Unit = {
@@ -262,6 +263,31 @@ object Patterns extends Canvas {
           graphicsContext2D.setFill(fillColor(value).opacity(fillOpacity(value)))
           if (fill) graphicsContext2D.fillOval((x - 1) * radius, (y - 1) * radius, diameter, diameter)
           if (stroke) graphicsContext2D.strokeOval((x - 1) * radius, (y - 1) * radius, diameter, diameter)
+        }
+      }
+    }
+  }
+
+  private class OverlappingRings(val hash: String, val baseColor: Color) extends Pattern {
+    var scale = hexVal(0)
+    var ringSize = rescale(scale, (0, 15), (10, 60))
+    var strokeWidth = ringSize / 4
+
+    override def xMax: Int = (width.intValue() / ringSize).intValue() + 1
+
+    override def yMax: Int = (height.intValue() / ringSize).intValue() + 1
+
+    override val fill: Boolean = false
+
+    override def drawPattern(): Unit = {
+      graphicsContext2D.lineWidth = ringSize / 4
+      for (y <- 0 to yMax) {
+        for (x <- 0 to xMax) {
+          val index = (y * 6 + x % 6) % 36 + 1
+          val value = hexVal(index)
+          graphicsContext2D.setStroke(fillColor(value).opacity(fillOpacity(value)))
+          if (stroke) graphicsContext2D.strokeOval((x - 0.5) * ringSize, (y - 0.5) * ringSize,
+            ringSize * 2 - strokeWidth, ringSize * 2 - strokeWidth)
         }
       }
     }
