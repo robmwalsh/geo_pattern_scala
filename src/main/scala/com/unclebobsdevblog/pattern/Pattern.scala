@@ -95,7 +95,7 @@ object Patterns extends Canvas {
 
   def apply(hash: String,
             baseColor: Color = Color.web("#933c3c")): Pattern = {
-    new ConcentricCircles(hash, baseColor)
+    new NestedSquares(hash, baseColor)
 
   }
 
@@ -318,6 +318,34 @@ object Patterns extends Canvas {
           graphicsContext2D.setFill(fillColor(value._2).opacity(fillOpacity(value._2)))
           graphicsContext2D.fillOval((x - 0.5) * (ringSize + strokeWidth) + strokeWidth, (y - 0.5) * (ringSize + strokeWidth) + strokeWidth,
             (ringSize + strokeWidth) / 2, (ringSize + strokeWidth) / 2)
+
+        }
+      }
+    }
+  }
+
+  private class NestedSquares(val hash: String, val baseColor: Color) extends Pattern {
+    var blockSize = rescale(hexVal(0), (0, 15), (4, 12))
+    var squareSize = blockSize * 7
+
+    override def xMax: Int = (width.intValue() / (blockSize + squareSize)).intValue() + 1
+
+    override def yMax: Int = (height.intValue() / (blockSize + squareSize)).intValue() + 1
+
+    override def drawPattern(): Unit = {
+      graphicsContext2D.lineWidth = blockSize
+      for (y <- 0 to yMax) {
+        for (x <- 0 to xMax) {
+          val index = (y * 6 + x % 6) % 36 + 1
+          val value = (hexVal(index), hexVal(39 - index))
+
+          graphicsContext2D.setStroke(fillColor(value._1).opacity(fillOpacity(value._2)))
+          graphicsContext2D.strokeRect((x - 0.5) * (blockSize * 2 + squareSize) + blockSize, (y - 0.5) * (blockSize * 2 + squareSize) + blockSize,
+            squareSize, squareSize)
+
+          graphicsContext2D.setStroke(fillColor(value._2).opacity(fillOpacity(value._2)))
+          graphicsContext2D.strokeRect((x - 0.5) * (blockSize * 2 + squareSize) + blockSize * 3, (y - 0.5) * (blockSize * 2 + squareSize) + blockSize * 3,
+            blockSize *3, blockSize *3)
 
         }
       }
