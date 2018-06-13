@@ -22,6 +22,32 @@ object Patterns extends Canvas {
   private def rescale(v: Double, vRange: (Double, Double), rRange: (Double, Double)): Double =
     (v - vRange._1) * (rRange._2 - rRange._1) / (vRange._2 - vRange._1) + rRange._1
 
+  trait BasicPattern extends Pattern {
+    val template: Seq[(Double, Double)]
+
+    def xMax: Int
+    def yMax: Int
+
+    val fill = true
+    val stroke = true
+
+    def translate(x: Double, y: Double): (Double, Double)
+
+    def drawPattern(): Unit = {
+      graphicsContext2D.setStroke(STROKE_COLOR.opacity(STROKE_OPACITY))
+      for (y <- 0 to yMax) {
+        for (x <- 0 to xMax) {
+          val index = (y * 6 + x % 6) % 36 + 1
+          val value = hexVal(index)
+          graphicsContext2D.setFill(fillColor(value).opacity(fillOpacity(value)))
+          val translation = translate(x, y)
+          val shape = template.map(point => (point._1 + translation._1, point._2 + translation._2))
+          if (fill) graphicsContext2D.fillPolygon(shape)
+          if (stroke) graphicsContext2D.strokePolygon(shape)
+        }
+      }
+    }
+  }
 
   trait Pattern extends Canvas {
     //TODO check the string is actually a hash
@@ -54,31 +80,7 @@ object Patterns extends Canvas {
       graphicsContext2D.fillRect(0d, 0d, width.doubleValue, height.doubleValue)
     }
 
-    val template: Seq[(Double, Double)]
-
-    def xMax: Int
-
-    def yMax: Int
-
-    val fill = true
-    val stroke = true
-
-    def translate(x: Double, y: Double): (Double, Double)
-
-    def drawPattern(): Unit = {
-      graphicsContext2D.setStroke(STROKE_COLOR.opacity(STROKE_OPACITY))
-      for (y <- 0 to yMax) {
-        for (x <- 0 to xMax) {
-          val index = (y * 6 + x % 6) % 36 + 1
-          val value = hexVal(index)
-          graphicsContext2D.setFill(fillColor(value).opacity(fillOpacity(value)))
-          val translation = translate(x, y)
-          val shape = template.map(point => (point._1 + translation._1, point._2 + translation._2))
-          if (fill) graphicsContext2D.fillPolygon(shape)
-          if (stroke) graphicsContext2D.strokePolygon(shape)
-        }
-      }
-    }
+    def drawPattern(): Unit
 
     final def draw(): Unit = {
       drawBackground()
@@ -92,11 +94,11 @@ object Patterns extends Canvas {
 
   def apply(hash: String = "f3da29ce23e96dc8b38df6ab3b6aaf7995cc581a",
             baseColor: Color = Color.web("#933c3c")): Pattern = {
-    new Squares(hash, baseColor)
+    new Chevrons(hash, baseColor)
 
   }
 
-  private class Hexagons(val hash: String, val baseColor: Color) extends Pattern {
+  private class Hexagons(val hash: String, val baseColor: Color) extends BasicPattern {
     val scale = hexVal(0)
     val sideLength = rescale(scale, (0, 15), (8, 60))
     val hexHeight = sideLength * Math.sqrt(3)
@@ -125,7 +127,7 @@ object Patterns extends Canvas {
     )
   }
 
-  private class Chevrons(val hash: String, val baseColor: Color) extends Pattern {
+  private class Chevrons(val hash: String, val baseColor: Color) extends BasicPattern {
     val chevronWidth = rescale(hexVal(0), (0, 15), (30, 80))
     val chevronHeight = chevronWidth
     val e = chevronHeight * 0.66
@@ -149,7 +151,7 @@ object Patterns extends Canvas {
 
   }
 
-  private class PlusSigns(val hash: String, val baseColor: Color) extends Pattern {
+  private class PlusSigns(val hash: String, val baseColor: Color) extends BasicPattern {
     val squareSize = rescale(hexVal(0), (0, 15), (10, 25))
     val plusSize = squareSize * 3
     val template: Seq[(Double, Double)] = Seq(
@@ -178,7 +180,7 @@ object Patterns extends Canvas {
 
   }
 
-  private class Octagons(val hash: String, val baseColor: Color) extends Pattern {
+  private class Octagons(val hash: String, val baseColor: Color) extends BasicPattern {
     val squareSize = rescale(hexVal(0), (0, 15), (10, 60))
     val s = squareSize
     val c = s * 0.33
@@ -201,7 +203,7 @@ object Patterns extends Canvas {
     override def translate(x: Double, y: Double): (Double, Double) = (x * squareSize, y * squareSize)
   }
 
-  private class Diamonds(val hash: String, val baseColor: Color) extends Pattern {
+  private class Diamonds(val hash: String, val baseColor: Color) extends BasicPattern {
     val diamondWidth = rescale(hexVal(0), (0, 15), (10, 50))
     val diamondHeight = rescale(hexVal(1), (0, 15), (10, 50))
     override val template: Seq[(Double, Double)] = Seq(
@@ -221,7 +223,7 @@ object Patterns extends Canvas {
         (y - 1) * diamondHeight / 2)
   }
 
-  private class Squares(val hash: String, val baseColor: Color) extends Pattern {
+  private class Squares(val hash: String, val baseColor: Color) extends BasicPattern {
 
     val squareSize = rescale(hexVal(0), (0, 15), (10, 60))
 
